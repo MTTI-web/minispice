@@ -19,7 +19,7 @@ for i = 1:numel(netlist_lines)
   nodes = addNode(words, nodes);
 end
 
-
+n_vs = 0; % number of voltage sources.
 for i = 1:numel(netlist_lines)
   words = strsplit(netlist_lines{i});
 
@@ -35,7 +35,11 @@ for i = 1:numel(netlist_lines)
 
   nodes(words{2}).addElement(element);
   nodes(words{3}).addElement(element);
+  if element.Type == Device.VoltageSource
+    n_vs = n_vs + 1;
+  end
 end
+
 
 
 
@@ -83,23 +87,14 @@ for k = keys(nodes)
 end
 clear i;
 
-% incrementing matrix size by number of voltage sources
-n_vs = 0;
-elementKeys = keys(elements);
-for i = 1:numel(elementKeys)
-  if elements(elementKeys{i}).Type == Device.VoltageSource
-    disp("voltage source found");
-    n_vs = n_vs + 1;
-  end
-end
-
 n_nodes = length(keys(nodes));
 
 % initializing known matrices
-G_mat = zeros(n_nodes + n_vs - 1, n_nodes-1);
+G_mat = zeros(n_nodes + n_vs - 1, n_nodes + n_vs -1);
 I_mat = zeros(n_nodes + n_vs - 1, 1);
 
 vs_count = 1;
+voltage_sources = Element.empty(0,1);
 for el = keys(elements)
   element = elements(el{1});
   n1 = nodes(element.Nodes{1}).Id;
@@ -132,6 +127,8 @@ for el = keys(elements)
       G_mat(n_nodes + vs_count - 1, n2) = -1;
       G_mat(n2, n_nodes + vs_count - 1) = -1;
     end
+    voltage_sources(end+1) = element;
+    vs_count = vs_count+1;
   end
 end
 V = G_mat\I_mat;
@@ -143,4 +140,7 @@ for k = keys(nodes)
   end
 end
 
-disp(V)
+for v = 1:length(voltage_sources)
+  vs = voltage_sources(v);
+  fprintf("Current in %s from %s to %s is %f\n",vs.Name,vs.Nodes{1},vs.Nodes{2},V(n_nodes+v-1));
+end
