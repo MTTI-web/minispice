@@ -86,11 +86,8 @@ clear i;
 n_nodes = length(keys(nodes));
 G_mat = zeros(n_nodes - 1,n_nodes-1);
 I_mat = zeros(n_nodes - 1,1);
-% disp("!!!!!!");
-% disp(G_mat(1,1))
-% disp("!!!!!!!!!!!!");
-% G_mat V_mat = I_mat
-% f(elements)
+
+
 for el = keys(elements)
     element = elements(el{1});
     n1 = nodes(element.Nodes{1}).Id; 
@@ -116,5 +113,11 @@ for el = keys(elements)
     end  
 end
 V = G_mat\I_mat;
-disp(V)
+
+
+for k = keys(nodes)
+    if nodes(k{1}).Id~=0
+      fprintf("Voltage of %s is %f\n",k{1},V(nodes(k{1}).Id));
+    end
+end
 
