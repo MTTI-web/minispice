@@ -5,7 +5,6 @@ classdef Node
   end
 
   methods
-    % Constructor
     function obj = Node(Name, AdjElements)
       if nargin < 1
         Name = "";
@@ -19,12 +18,10 @@ classdef Node
       obj.AdjElements = AdjElements;
     end
 
-    % Add one adjacent element
     function obj = addElement(obj, element)
       obj.AdjElements{end + 1} = element;
     end
 
-    % Return the node name
     function name = getName(obj)
       name = obj.Name;
     end

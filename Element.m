@@ -1,17 +1,45 @@
-classdef Element
-  properties
-    Name string
-    Type Device
-    Value double
-    Nodes {Node, Node}
-    DependsOn % (a,b) or (element)
-  end
+classdef Element < handle
 
-  methods
-    function obj = ClassName(inputArg1)
-      obj.Property1 = inputArg1^2;
-      disp(obj.Property1);
+    properties
+        Name string
+        Type Device
+        Value double
+        Nodes (1,2) Node
+        DependsOn
+    end
+
+    methods
+
+        function obj = Element(name, node1, node2, value)
+
+            obj.Name = string(name);
+            obj.Nodes = [node1, node2];
+            obj.Value = double(value);
+
+            switch upper(obj.Name(1))
+                case "V"
+                    obj.Type = Device.VoltageSource;
+                case "I"
+                    obj.Type = Device.CurrentSource;
+                case "R"
+                    obj.Type = Device.Resistor;
+                case "L"
+                    obj.Type = Device.Inductor;
+                case "C"
+                    obj.Type = Device.Capacitor;
+                case "E"
+                    obj.Type = Device.VCVS;
+                case "F"
+                    obj.Type = Device.CCCS;
+                case "G"
+                    obj.Type = Device.VCCS;
+                case "H"
+                    obj.Type = Device.CCVS;
+                otherwise
+                    error("Unknown device type: %s", obj.Name);
+
+            end
+        end
 
     end
-  end
 end

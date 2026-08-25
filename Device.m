@@ -1,13 +1,15 @@
 classdef Device
-  enumeration
-    R % resistor
-    C % capactor
-    L % inductor
-    V % independent voltage source
-    I % independent current source
-    E % voltage controlled voltage source
-    F % current controlled current source
-    G % voltage controlled current source
-    H % current controlled voltage source
-  end
+    enumeration
+        Resistor
+        Capacitor
+        Inductor
+
+        VoltageSource
+        CurrentSource
+
+        VCVS  % Voltage-Controlled Voltage Source
+        CCCS  % Current-Controlled Current Source
+        VCCS  % Voltage-Controlled Current Source
+        CCVS  % Current-Controlled Voltage Source
+    end
 end
