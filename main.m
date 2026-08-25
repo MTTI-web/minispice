@@ -8,8 +8,8 @@ lines = strtrim(lines);
 commentLine = startsWith(lines, {'*', '#', ';', '%'});
 netlist_lines = lines(~cellfun(@isempty, lines) & ~commentLine);
 
-
 nodes = containers.Map();
+elements = containers.Map();
 
 for i = 1:numel(netlist_lines)
   words = strsplit(netlist_lines{i});
@@ -31,7 +31,8 @@ for i = 1:numel(netlist_lines)
   end
   element = Element(words{1},words{2},words{3},words{4});
 
-  disp(element);
+  elements(words{1}) = element;
+
   nodes(words{2}).addElement(element);
   nodes(words{3}).addElement(element);
 end
@@ -63,5 +64,24 @@ for i = 1:numel(keysList)
 end
 end
 
+% handling no ground
+
+refNode = "0";
+
+if ~isKey(nodes, "0")
+  refNodes = keys(nodes);
+  refNode = refNodes{1};
+
+  disp(refNode);
+end
+
+% creating the conductance matrix
+n_nodes = length(keys(nodes));
+G_mat = zeros(n_nodes - 1);
+
+disp(G_mat);
+
+
 % debugging area
 % f(nodes)
+% f(elements);

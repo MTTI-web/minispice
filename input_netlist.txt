@@ -1,8 +1,8 @@
 * Simple RC Circuit
 
-V1 in 0 DC 5 $ nice comment
+V1 in 1 DC 5 $ nice comment
 R1 in out 1k
-C1 out 0 1u
+C1 out 1 1u
 
 .tran 1u 10m
 
