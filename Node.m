@@ -1,11 +1,13 @@
-classdef Node
+classdef Node < handle
   properties
     Name
+    Id
     AdjElements
   end
 
   methods
     function obj = Node(Name, AdjElements)
+      obj.Id = 0;
       if nargin < 1
         Name = "";
       end
@@ -24,6 +26,9 @@ classdef Node
 
     function name = getName(obj)
       name = obj.Name;
+    end
+    function obj = SetId(obj,id)
+      obj.Id = id;
     end
   end
 end

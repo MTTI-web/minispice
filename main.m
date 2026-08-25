@@ -75,13 +75,45 @@ if ~isKey(nodes, "0")
   disp(refNode);
 end
 
-% creating the conductance matrix
+
+i = 1;
+for k = keys(nodes)
+  if k~=refNode
+    nodes(k).SetId(i);
+    i=i+1;
+  end
+end
+clear i;
+
 n_nodes = length(keys(nodes));
 G_mat = zeros(n_nodes - 1);
-
-disp(G_mat);
-
-
+I_mat = zeros(n_nodes - 1,1);
+% G_mat V_mat = I_mat
+for element = elements
+    n1 = nodes(element.Nodes{1}).Id; 
+    n2 = nodes(element.Nodes{2}).Id;
+    if element.Type==Device.Resistor
+      if n1==0
+        G_mat(n2,n2) = G_mat(n2,n2) + 1/element.Value;
+      elseif n2==0
+        G_mat(n1,n1) = G_mat(n1,n1) + 1/element.Value;
+      else
+        G_mat(n1,n1) = G_mat(n1,n1) + 1/element.Value;
+        G_mat(n2,n2) = G_mat(n2,n2) + 1/element.Value;      
+        G_mat(n1,n2) = G_mat(n1,n2) - 1/element.Value;
+        G_mat(n2,n1) = G_mat(n2,n1) - 1/element.Value;
+      end
+    elseif element.Type==Device.CurrentSource
+      if n1~=0
+        I_mat(n1) = I_mat(n1)-Element.Value;
+      end
+      if n2~=0
+        I_mat(n2) = I_mat(n2)+Element.Value;
+      end
+    end  
+end
+V = G_mat\I_mat;
+disp(V)
 % debugging area
 % f(nodes)
 % f(elements);

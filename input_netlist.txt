@@ -1,9 +1,11 @@
-* Simple RC Circuit
+* Resistor and independent current source circuit
 
-V1 in 1 DC 5 $ nice comment
-R1 in out 1k
-C1 out 1 1u
+I1 1 0 DC 2
+I2 2 0 DC 1
 
-.tran 1u 10m
+R1 1 0 4
+R2 1 2 3
+R3 1 0 6
 
+.op
 .end

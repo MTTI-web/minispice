@@ -4,7 +4,7 @@ classdef Element < handle
     Name string
     Type Device
     Value double
-    Nodes (1,2) Node
+    Nodes 
     DependsOn
   end
 
