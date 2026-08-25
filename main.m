@@ -53,15 +53,15 @@ end
 end
 
 function f(nodes)
-keysList = keys(nodes);
+  keysList = keys(nodes);
 
-for i = 1:numel(keysList)
-  key = keysList{i};
-  value = nodes(key);
+  for i = 1:numel(keysList)
+    key = keysList{i};
+    value = nodes(key);
 
-  fprintf("Key: %s\n", key);
-  disp(value);
-end
+    fprintf("Key: %s\n", key);
+    disp(value);
+  end
 end
 
 % handling no ground
@@ -71,8 +71,6 @@ refNode = "0";
 if ~isKey(nodes, "0")
   refNodes = keys(nodes);
   refNode = refNodes{1};
-
-  disp(refNode);
 end
 
 
@@ -88,8 +86,13 @@ clear i;
 n_nodes = length(keys(nodes));
 G_mat = zeros(n_nodes - 1,n_nodes-1);
 I_mat = zeros(n_nodes - 1,1);
+% disp("!!!!!!");
+% disp(G_mat(1,1))
+% disp("!!!!!!!!!!!!");
 % G_mat V_mat = I_mat
-for element = elements
+% f(elements)
+for el = keys(elements)
+    element = elements(el{1});
     n1 = nodes(element.Nodes{1}).Id; 
     n2 = nodes(element.Nodes{2}).Id;
     if element.Type==Device.Resistor
@@ -105,15 +108,13 @@ for element = elements
       end
     elseif element.Type==Device.CurrentSource
       if n1~=0
-        I_mat(n1) = I_mat(n1)-Element.Value;
+        I_mat(n1,1) = I_mat(n1,1)-element.Value;
       end
       if n2~=0
-        I_mat(n2) = I_mat(n2)+Element.Value;
+        I_mat(n2,1) = I_mat(n2,1)+element.Value;
       end
     end  
 end
 V = G_mat\I_mat;
 disp(V)
-% debugging area
-% f(nodes)
-% f(elements);
+

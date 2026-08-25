@@ -13,7 +13,7 @@ classdef Element < handle
     function obj = Element(name, node1, node2, value)
 
       obj.Name = string(name);
-      obj.Nodes = [node1, node2];
+      obj.Nodes = {node1, node2};
       obj.Value = valParse(value);
       % disp(name(1));
       switch upper(name(1))
