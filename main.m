@@ -79,14 +79,14 @@ end
 i = 1;
 for k = keys(nodes)
   if k~=refNode
-    nodes(k).SetId(i);
+    nodes(k{1}).SetId(i);
     i=i+1;
   end
 end
 clear i;
 
 n_nodes = length(keys(nodes));
-G_mat = zeros(n_nodes - 1);
+G_mat = zeros(n_nodes - 1,n_nodes-1);
 I_mat = zeros(n_nodes - 1,1);
 % G_mat V_mat = I_mat
 for element = elements
