@@ -53,15 +53,15 @@ end
 end
 
 function f(nodes)
-  keysList = keys(nodes);
+keysList = keys(nodes);
 
-  for i = 1:numel(keysList)
-    key = keysList{i};
-    value = nodes(key);
+for i = 1:numel(keysList)
+  key = keysList{i};
+  value = nodes(key);
 
-    fprintf("Key: %s\n", key);
-    disp(value);
-  end
+  fprintf("Key: %s\n", key);
+  disp(value);
+end
 end
 
 % handling no ground
@@ -83,41 +83,64 @@ for k = keys(nodes)
 end
 clear i;
 
+% incrementing matrix size by number of voltage sources
+n_vs = 0;
+elementKeys = keys(elements);
+for i = 1:numel(elementKeys)
+  if elements(elementKeys{i}).Type == Device.VoltageSource
+    disp("voltage source found");
+    n_vs = n_vs + 1;
+  end
+end
+
 n_nodes = length(keys(nodes));
-G_mat = zeros(n_nodes - 1,n_nodes-1);
-I_mat = zeros(n_nodes - 1,1);
 
+% initializing known matrices
+G_mat = zeros(n_nodes + n_vs - 1, n_nodes-1);
+I_mat = zeros(n_nodes + n_vs - 1, 1);
 
+vs_count = 1;
 for el = keys(elements)
-    element = elements(el{1});
-    n1 = nodes(element.Nodes{1}).Id; 
-    n2 = nodes(element.Nodes{2}).Id;
-    if element.Type==Device.Resistor
-      if n1==0
-        G_mat(n2,n2) = G_mat(n2,n2) + 1/element.Value;
-      elseif n2==0
-        G_mat(n1,n1) = G_mat(n1,n1) + 1/element.Value;
-      else
-        G_mat(n1,n1) = G_mat(n1,n1) + 1/element.Value;
-        G_mat(n2,n2) = G_mat(n2,n2) + 1/element.Value;      
-        G_mat(n1,n2) = G_mat(n1,n2) - 1/element.Value;
-        G_mat(n2,n1) = G_mat(n2,n1) - 1/element.Value;
-      end
-    elseif element.Type==Device.CurrentSource
-      if n1~=0
-        I_mat(n1,1) = I_mat(n1,1)-element.Value;
-      end
-      if n2~=0
-        I_mat(n2,1) = I_mat(n2,1)+element.Value;
-      end
-    end  
+  element = elements(el{1});
+  n1 = nodes(element.Nodes{1}).Id;
+  n2 = nodes(element.Nodes{2}).Id;
+  if element.Type==Device.Resistor
+    if n1==0
+      G_mat(n2,n2) = G_mat(n2,n2) + 1/element.Value;
+    elseif n2==0
+      G_mat(n1,n1) = G_mat(n1,n1) + 1/element.Value;
+    else
+      G_mat(n1,n1) = G_mat(n1,n1) + 1/element.Value;
+      G_mat(n2,n2) = G_mat(n2,n2) + 1/element.Value;
+      G_mat(n1,n2) = G_mat(n1,n2) - 1/element.Value;
+      G_mat(n2,n1) = G_mat(n2,n1) - 1/element.Value;
+    end
+  elseif element.Type==Device.CurrentSource
+    if n1~=0
+      I_mat(n1,1) = I_mat(n1,1)-element.Value;
+    end
+    if n2~=0
+      I_mat(n2,1) = I_mat(n2,1)+element.Value;
+    end
+  elseif element.Type == Device.VoltageSource
+    I_mat(n_nodes + vs_count - 1, 1) = element.Value;
+    if (n1~=0)
+      G_mat(n_nodes + vs_count - 1, n1) = 1;
+      G_mat(n1, n_nodes + vs_count - 1) = 1;
+    end
+    if (n2 ~=0)
+      G_mat(n_nodes + vs_count - 1, n2) = -1;
+      G_mat(n2, n_nodes + vs_count - 1) = -1;
+    end
+  end
 end
 V = G_mat\I_mat;
 
 
 for k = keys(nodes)
-    if nodes(k{1}).Id~=0
-      fprintf("Voltage of %s is %f\n",k{1},V(nodes(k{1}).Id));
-    end
+  if nodes(k{1}).Id~=0
+    fprintf("Voltage of %s is %f\n",k{1},V(nodes(k{1}).Id));
+  end
 end
 
+disp(V)

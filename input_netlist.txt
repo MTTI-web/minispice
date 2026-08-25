@@ -1,7 +1,9 @@
-* Resistor and independent current source circuit
+* Resistor, current, and voltage source circuit
 
 I1 1 0 DC 2
 I2 2 0 DC 1
+
+V1 2 0 DC 5
 
 R1 1 0 4
 R2 1 2 3
