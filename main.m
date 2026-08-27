@@ -141,6 +141,19 @@ for el = keys(elements)
     disp(I_mat)
 
   elseif element.Type == Device.VCVS
+    
+    if (n1~=0)
+      disp("vs node 1 analysis")
+      G_mat(n_nodes + vs_count - 1, n1) = G_mat(n_nodes + vs_count - 1, n1) + 1;
+      G_mat(n1, n_nodes + vs_count - 1) = G_mat(n1, n_nodes + vs_count - 1) + 1;
+    end
+    if (n2 ~=0)
+      disp("vs node 2 analsysi")
+      G_mat(n_nodes + vs_count - 1, n2) = G_mat(n_nodes + vs_count - 1, n2) - 1;
+      G_mat(n2, n_nodes + vs_count - 1) = G_mat(n2, n_nodes + vs_count - 1) - 1;
+    end
+    voltage_sources(end+1) = element;
+
     first_node = nodes(element.DependsOn{1}).Id;
     second_node = nodes(element.DependsOn{2}).Id;
     if (first_node ~= 0)
