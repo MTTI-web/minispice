@@ -208,6 +208,22 @@ for el = keys(elements)
         if n2 ~= 0
           G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
         end
+      case Device.CCVS
+        if n1 ~= 0
+          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
+        end
+        if n2 ~= 0
+          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
+        end
+      case Device.VCVS
+        if n1 ~= 0
+          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
+        end
+        if n2 ~= 0
+          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
+        end
+      case Device.CCCS % TODO
+      case Device.VCCS % TODO
       otherwise
     end
   end
