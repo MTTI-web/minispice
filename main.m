@@ -96,8 +96,6 @@ n_nodes = length(keys(nodes));
 G_mat = zeros(n_nodes + n_vs - 1, n_nodes + n_vs -1);
 I_mat = zeros(n_nodes + n_vs - 1, 1);
 
-print_map(elements);
-
 % real loop
 voltage_sources = Element.empty(0,1);
 for el = keys(elements)
@@ -164,7 +162,6 @@ for el = keys(elements)
     end
   end
 
-
   if element.Type==Device.VCCS
     first_node = nodes(element.DependsOn{1}).Id;
     second_node = nodes(element.DependsOn{2}).Id;
@@ -185,19 +182,24 @@ for el = keys(elements)
   if element.Type == Device.CCCS
     device = elements(element.DependsOn);
     t = element.Value / device.Value;
+    disp(device);
     switch device.Type
       case Device.Resistor
-        if n1 ~= 0 && device.Nodes{1} ~= 0
-          G_mat(n1, device.Nodes{1}) = G_mat(n1, device.Nodes{1}) + t;
+        if n1 ~= 0 && nodes(device.Nodes{1}).Id ~= 0
+          disp(1);
+          G_mat(n1, nodes(device.Nodes{1}).Id) = G_mat(n1, nodes(device.Nodes{1}).Id) + t;
         end
-        if n2 ~= 0 && device.Nodes{2} ~= 0
-          G_mat(n2, device.Nodes{2}) = G_mat(n2, device.Nodes{2}) + t;
+        if n2 ~= 0 && nodes(device.Nodes{2}).Id ~= 0
+          disp(2);
+          G_mat(n2, nodes(device.Nodes{2}).Id) = G_mat(n2, nodes(device.Nodes{2}).Id) + t;
         end
-        if n1 ~= 0 && device.Nodes{2} ~= 0
-          G_mat(n1, device.Nodes{2}) = G_mat(n1, device.Nodes{2}) - t;
+        if n1 ~= 0 && nodes(device.Nodes{2}).Id ~= 0
+          disp(3);
+          G_mat(n1, nodes(device.Nodes{2}).Id) = G_mat(n1, nodes(device.Nodes{2}).Id) - t;
         end
-        if n2 ~= 0 && device.Nodes{1} ~= 0
-          G_mat(n2, device.Nodes{1}) = G_mat(n2, device.Nodes{1}) - t;
+        if n2 ~= 0 && nodes(device.Nodes{1}).Id ~= 0
+          disp(4);
+          G_mat(n2, nodes(device.Nodes{1}).Id) = G_mat(n2, nodes(device.Nodes{1}).Id) - t;
         end
       otherwise
     end
