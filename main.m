@@ -65,8 +65,8 @@ for i = 1:numel(netlist_lines)
   nodes(words{2}).addElement(element);
   nodes(words{3}).addElement(element);
   if element.Type == Device.VoltageSource || element.Type == Device.VCVS ||element.Type == Device.CCVS
-    element.VS_ID = n_vs;
     n_vs = n_vs + 1;
+    element.VS_ID = n_vs;
   end
 end
 
@@ -163,7 +163,23 @@ for el = keys(elements)
       otherwise
     end
   end
-  
+  if element.Type==Device.VCCS
+    first_node = nodes(element.DependsOn{1}).Id;
+    second_node = nodes(element.DependsOn{2}).Id;
+    if (first_node ~= 0 && n1~=0)
+      G_mat(n1 , first_node) = G_mat(n1, first_node) + element.Value;
+    end
+    if (second_node ~= 0 && n2~=0)
+      G_mat(n2 , second_node) = G_mat(n2,second_node) + element.Value;
+    end
+    if (second_node ~= 0 && n1~=0)
+      G_mat(n1 , second_node) = G_mat(n1, second_node) - element.Value;
+    end
+    if (first_node ~= 0 && n2~=0)
+      G_mat(n2 , first_node) = G_mat(n2, first_node) - element.Value;
+    end
+  end
+
   if element.Type==Device.VoltageSource || element.Type==Device.VCVS || element.Type == Device.CCVS
     if (n1~=0)
       G_mat(n_nodes + element.VS_ID - 1, n1) = G_mat(n_nodes + element.VS_ID - 1, n1) + 1;
