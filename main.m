@@ -115,7 +115,7 @@ for el = keys(elements)
       G_mat(n1,n2) = G_mat(n1,n2) - 1/element.Value;
       G_mat(n2,n1) = G_mat(n2,n1) - 1/element.Value;
     end
-  end  
+  end
   if element.Type==Device.CurrentSource
     if n1~=0
       I_mat(n1,1) = I_mat(n1,1)-element.Value;
@@ -123,7 +123,7 @@ for el = keys(elements)
     if n2~=0
       I_mat(n2,1) = I_mat(n2,1)+element.Value;
     end
-  end  
+  end
   if element.Type == Device.VoltageSource
     I_mat(n_nodes + element.VS_ID - 1, 1) = I_mat(n_nodes + element.VS_ID - 1, 1) + element.Value;
   end
@@ -151,9 +151,9 @@ for el = keys(elements)
           G_mat(n_nodes + element.VS_ID - 1, second_node) = G_mat(n_nodes + element.VS_ID - 1, second_node) + element.Value/device.Value;
         end
       case Device.CurrentSource
-          I_mat(n_nodes + element.VS_ID - 1, 1) = I_mat(n_nodes + element.VS_ID - 1, 1) + element.Value*device.Value;
+        I_mat(n_nodes + element.VS_ID - 1, 1) = I_mat(n_nodes + element.VS_ID - 1, 1) + element.Value*device.Value;
       case Device.VoltageSource
-          G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
+        G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
       case Device.CCVS
         G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
       case Device.VCVS
@@ -163,6 +163,8 @@ for el = keys(elements)
       otherwise
     end
   end
+
+
   if element.Type==Device.VCCS
     first_node = nodes(element.DependsOn{1}).Id;
     second_node = nodes(element.DependsOn{2}).Id;
@@ -177,6 +179,27 @@ for el = keys(elements)
     end
     if (first_node ~= 0 && n2~=0)
       G_mat(n2 , first_node) = G_mat(n2, first_node) - element.Value;
+    end
+  end
+
+  if element.Type == Device.CCCS
+    device = elements(element.DependsOn);
+    t = element.Value / device.Value;
+    switch device.Type
+      case Device.Resistor
+        if n1 ~= 0 && device.Nodes{1} ~= 0
+          G_mat(n1, device.Nodes{1}) = G_mat(n1, device.Nodes{1}) + t;
+        end
+        if n2 ~= 0 && device.Nodes{2} ~= 0
+          G_mat(n2, device.Nodes{2}) = G_mat(n2, device.Nodes{2}) + t;
+        end
+        if n1 ~= 0 && device.Nodes{2} ~= 0
+          G_mat(n1, device.Nodes{2}) = G_mat(n1, device.Nodes{2}) + t;
+        end
+        if n2 ~= 0 && device.Nodes{1} ~= 0
+          G_mat(n2, device.Nodes{1}) = G_mat(n2, device.Nodes{1}) + t;
+        end
+      otherwise
     end
   end
 
