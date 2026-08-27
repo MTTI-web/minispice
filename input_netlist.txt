@@ -1,4 +1,4 @@
-* Resistor, current, and voltage source circuit
+* Resistor, current, voltage source, and VCVS circuit
 
 I1 1 0 DC 2
 I2 2 0 DC 1
@@ -8,6 +8,15 @@ V1 2 0 DC 5
 R1 1 0 4
 R2 1 2 3
 R3 1 0 6
+
+* --- Added VCVS Section ---
+* E1 generates a voltage at node 3 (relative to 0) 
+* controlled by the voltage difference between node 1 and node 2.
+* The multiplier (gain) is set to 2.
+E1 3 0 1 2 2.0
+
+* R4 acts as a load resistor for the VCVS output
+R4 3 0 10
 
 .op
 .end

@@ -1,3 +1,30 @@
+
+function print_map(nodes)
+  keysList = keys(nodes);
+
+  for i = 1:numel(keysList)
+    key = keysList{i};
+    value = nodes(key);
+
+    fprintf("Key: %s\n", key);
+    disp(value);
+  end
+end
+
+function nodes = addNode(words, nodes)
+  n1 = string(words{2});
+  n2 = string(words{3});
+
+  if ~isKey(nodes,n1)
+    nodes(n1) = Node(n1);
+  end
+
+  if ~isKey(nodes,n2)
+    nodes(n2) = Node(n2);
+  end
+end
+
+% parse netlist
 filename = 'input_netlist.txt';
 
 raw_netlist = strsplit(fileread(filename), {'\r\n', '\n', '\r'});
@@ -11,6 +38,7 @@ netlist_lines = lines(~cellfun(@isempty, lines) & ~commentLine);
 nodes = containers.Map();
 elements = containers.Map();
 
+% add nodes, dont consider .end , .tran etc 
 for i = 1:numel(netlist_lines)
   words = strsplit(netlist_lines{i});
   if words{1}(1) == "."
@@ -19,17 +47,18 @@ for i = 1:numel(netlist_lines)
   nodes = addNode(words, nodes);
 end
 
+
 n_vs = 0; % number of voltage sources.
+
+% add elements
 for i = 1:numel(netlist_lines)
   words = strsplit(netlist_lines{i});
 
   if words{1}(1)=="."
     continue;
   end
-  if words{4}=="DC"
-    words{4} = words{5};
-  end
-  element = Element(words{1},words{2},words{3},words{4});
+
+  element = Element(words);
 
   elements(words{1}) = element;
 
@@ -41,35 +70,7 @@ for i = 1:numel(netlist_lines)
 end
 
 
-
-
-function nodes = addNode(words, nodes)
-n1 = string(words{2});
-n2 = string(words{3});
-
-if ~isKey(nodes,n1)
-  nodes(n1) = Node(n1);
-end
-
-if ~isKey(nodes,n2)
-  nodes(n2) = Node(n2);
-end
-end
-
-function f(nodes)
-keysList = keys(nodes);
-
-for i = 1:numel(keysList)
-  key = keysList{i};
-  value = nodes(key);
-
-  fprintf("Key: %s\n", key);
-  disp(value);
-end
-end
-
 % handling no ground
-
 refNode = "0";
 
 if ~isKey(nodes, "0")
@@ -77,7 +78,7 @@ if ~isKey(nodes, "0")
   refNode = refNodes{1};
 end
 
-
+% give ID to each node
 i = 1;
 for k = keys(nodes)
   if k~=refNode
@@ -87,12 +88,14 @@ for k = keys(nodes)
 end
 clear i;
 
+
 n_nodes = length(keys(nodes));
 
 % initializing known matrices
 G_mat = zeros(n_nodes + n_vs - 1, n_nodes + n_vs -1);
 I_mat = zeros(n_nodes + n_vs - 1, 1);
 
+% real loop
 vs_count = 1;
 voltage_sources = Element.empty(0,1);
 for el = keys(elements)
@@ -131,8 +134,12 @@ for el = keys(elements)
     vs_count = vs_count+1;
   end
 end
-V = G_mat\I_mat;
 
+
+
+
+% solve matrix and print
+V = G_mat\I_mat;
 
 for k = keys(nodes)
   if nodes(k{1}).Id~=0
