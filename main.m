@@ -65,6 +65,7 @@ for i = 1:numel(netlist_lines)
   nodes(words{2}).addElement(element);
   nodes(words{3}).addElement(element);
   if element.Type == Device.VoltageSource || element.Type == Device.VCVS ||element.Type == Device.CCVS
+    element.VS_ID = n_vs;
     n_vs = n_vs + 1;
   end
 end
@@ -98,7 +99,6 @@ I_mat = zeros(n_nodes + n_vs - 1, 1);
 print_map(elements);
 
 % real loop
-vs_count = 1;
 voltage_sources = Element.empty(0,1);
 for el = keys(elements)
   element = elements(el{1});
@@ -125,17 +125,17 @@ for el = keys(elements)
     end
   end  
   if element.Type == Device.VoltageSource
-    I_mat(n_nodes + vs_count - 1, 1) = I_mat(n_nodes + vs_count - 1, 1) + element.Value;
+    I_mat(n_nodes + element.VS_ID - 1, 1) = I_mat(n_nodes + element.VS_ID - 1, 1) + element.Value;
   end
 
   if element.Type == Device.VCVS
     first_node = nodes(element.DependsOn{1}).Id;
     second_node = nodes(element.DependsOn{2}).Id;
     if (first_node ~= 0)
-      G_mat(n_nodes + vs_count - 1, first_node) = G_mat(n_nodes + vs_count - 1, first_node) - element.Value;
+      G_mat(n_nodes + element.VS_ID - 1, first_node) = G_mat(n_nodes + element.VS_ID - 1, first_node) - element.Value;
     end
     if (second_node ~= 0)
-      G_mat(n_nodes + vs_count - 1, second_node) = G_mat(n_nodes + vs_count - 1, second_node) + element.Value;
+      G_mat(n_nodes + element.VS_ID - 1, second_node) = G_mat(n_nodes + element.VS_ID - 1, second_node) + element.Value;
     end
   end
   if element.Type==Device.CCVS
@@ -145,26 +145,35 @@ for el = keys(elements)
         first_node = nodes(device.Nodes{1}).Id;
         second_node = nodes(device.Nodes{2}).Id;
         if (first_node ~= 0)
-          G_mat(n_nodes + vs_count - 1, first_node) = G_mat(n_nodes + vs_count - 1, first_node) - element.Value/device.Value;
+          G_mat(n_nodes + element.VS_ID - 1, first_node) = G_mat(n_nodes + element.VS_ID - 1, first_node) - element.Value/device.Value;
         end
         if (second_node ~= 0)
-          G_mat(n_nodes + vs_count - 1, second_node) = G_mat(n_nodes + vs_count - 1, second_node) + element.Value/device.Value;
+          G_mat(n_nodes + element.VS_ID - 1, second_node) = G_mat(n_nodes + element.VS_ID - 1, second_node) + element.Value/device.Value;
         end
-        
+      case Device.CurrentSource
+          I_mat(n_nodes + element.VS_ID - 1, 1) = I_mat(n_nodes + element.VS_ID - 1, 1) + element.Value*device.Value;
+      case Device.VoltageSource
+          G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
+      case Device.CCVS
+        G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
+      case Device.VCVS
+        G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
+      case Device.VCCS %TODO
+      case Device.CCCS %TODO
       otherwise
     end
   end
+  
   if element.Type==Device.VoltageSource || element.Type==Device.VCVS || element.Type == Device.CCVS
     if (n1~=0)
-      G_mat(n_nodes + vs_count - 1, n1) = G_mat(n_nodes + vs_count - 1, n1) + 1;
-      G_mat(n1, n_nodes + vs_count - 1) = G_mat(n1, n_nodes + vs_count - 1) + 1;
+      G_mat(n_nodes + element.VS_ID - 1, n1) = G_mat(n_nodes + element.VS_ID - 1, n1) + 1;
+      G_mat(n1, n_nodes + element.VS_ID - 1) = G_mat(n1, n_nodes + element.VS_ID - 1) + 1;
     end
     if (n2 ~=0)
-      G_mat(n_nodes + vs_count - 1, n2) = G_mat(n_nodes + vs_count - 1, n2) - 1;
-      G_mat(n2, n_nodes + vs_count - 1) = G_mat(n2, n_nodes + vs_count - 1) - 1;
+      G_mat(n_nodes + element.VS_ID - 1, n2) = G_mat(n_nodes + element.VS_ID - 1, n2) - 1;
+      G_mat(n2, n_nodes + element.VS_ID - 1) = G_mat(n2, n_nodes + element.VS_ID - 1) - 1;
     end
     voltage_sources(end+1) = element;
-    vs_count = vs_count + 1;
   end
 end
 

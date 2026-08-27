@@ -4,6 +4,7 @@ classdef Element < handle
     Name string
     Type Device
     Value double
+    VS_ID
     Nodes 
     DependsOn
   end
@@ -16,7 +17,7 @@ classdef Element < handle
       node2 = words{3};
       obj.Name = string(name);
       obj.Nodes = {node1, node2};
-      
+      obj.VS_ID = 0;
       switch upper(name(1))
         case "V"
           obj.Type = Device.VoltageSource;
