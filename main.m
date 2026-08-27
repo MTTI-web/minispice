@@ -201,6 +201,13 @@ for el = keys(elements)
           disp(4);
           G_mat(n2, nodes(device.Nodes{1}).Id) = G_mat(n2, nodes(device.Nodes{1}).Id) - t;
         end
+      case Device.VoltageSource
+        if n1 ~= 0
+          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
+        end
+        if n2 ~= 0
+          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
+        end
       otherwise
     end
   end
