@@ -141,7 +141,6 @@ for el = keys(elements)
     disp(I_mat)
 
   elseif element.Type == Device.VCVS
-    
     if (n1~=0)
       disp("vs node 1 analysis")
       G_mat(n_nodes + vs_count - 1, n1) = G_mat(n_nodes + vs_count - 1, n1) + 1;
@@ -158,10 +157,9 @@ for el = keys(elements)
     second_node = nodes(element.DependsOn{2}).Id;
     if (first_node ~= 0)
       G_mat(n_nodes + vs_count - 1, first_node) = G_mat(n_nodes + vs_count - 1, first_node) - element.Value;
-      G_mat(first_node, n_nodes + vs_count - 1) = G_mat(n_nodes + vs_count - 1, first_node) - element.Value;
     end
     if (second_node ~= 0)
-      G_mat(n_nodes + vs_count - 1, first_node) = G_mat(n_nodes + vs_count - 1, first_node) + element.Value;
+      G_mat(n_nodes + vs_count - 1, second_node) = G_mat(n_nodes + vs_count - 1, second_node) + element.Value;
     end
     vs_count = vs_count + 1;
   end
