@@ -115,44 +115,20 @@ for el = keys(elements)
       G_mat(n1,n2) = G_mat(n1,n2) - 1/element.Value;
       G_mat(n2,n1) = G_mat(n2,n1) - 1/element.Value;
     end
-  elseif element.Type==Device.CurrentSource
+  end  
+  if element.Type==Device.CurrentSource
     if n1~=0
       I_mat(n1,1) = I_mat(n1,1)-element.Value;
     end
     if n2~=0
       I_mat(n2,1) = I_mat(n2,1)+element.Value;
     end
-  elseif element.Type == Device.VoltageSource
-    disp("i am reading voltage source")
+  end  
+  if element.Type == Device.VoltageSource
     I_mat(n_nodes + vs_count - 1, 1) = I_mat(n_nodes + vs_count - 1, 1) + element.Value;
-    if (n1~=0)
-      disp("vs node 1 analysis")
-      G_mat(n_nodes + vs_count - 1, n1) = G_mat(n_nodes + vs_count - 1, n1) + 1;
-      G_mat(n1, n_nodes + vs_count - 1) = G_mat(n1, n_nodes + vs_count - 1) + 1;
-    end
-    if (n2 ~=0)
-      disp("vs node 2 analsysi")
-      G_mat(n_nodes + vs_count - 1, n2) = G_mat(n_nodes + vs_count - 1, n2) - 1;
-      G_mat(n2, n_nodes + vs_count - 1) = G_mat(n2, n_nodes + vs_count - 1) - 1;
-    end
-    voltage_sources(end+1) = element;
-    vs_count = vs_count + 1;
-    disp("analysis vs end")
-    disp(I_mat)
+  end
 
-  elseif element.Type == Device.VCVS
-    if (n1~=0)
-      disp("vs node 1 analysis")
-      G_mat(n_nodes + vs_count - 1, n1) = G_mat(n_nodes + vs_count - 1, n1) + 1;
-      G_mat(n1, n_nodes + vs_count - 1) = G_mat(n1, n_nodes + vs_count - 1) + 1;
-    end
-    if (n2 ~=0)
-      disp("vs node 2 analsysi")
-      G_mat(n_nodes + vs_count - 1, n2) = G_mat(n_nodes + vs_count - 1, n2) - 1;
-      G_mat(n2, n_nodes + vs_count - 1) = G_mat(n2, n_nodes + vs_count - 1) - 1;
-    end
-    voltage_sources(end+1) = element;
-
+  if element.Type == Device.VCVS
     first_node = nodes(element.DependsOn{1}).Id;
     second_node = nodes(element.DependsOn{2}).Id;
     if (first_node ~= 0)
@@ -161,6 +137,33 @@ for el = keys(elements)
     if (second_node ~= 0)
       G_mat(n_nodes + vs_count - 1, second_node) = G_mat(n_nodes + vs_count - 1, second_node) + element.Value;
     end
+  end
+  if element.Type==Device.CCVS
+    device = elements(element.DependsOn);
+    switch device.Type
+      case Device.Resistor
+        first_node = nodes(device.Nodes{1}).Id;
+        second_node = nodes(device.Nodes{2}).Id;
+        if (first_node ~= 0)
+          G_mat(n_nodes + vs_count - 1, first_node) = G_mat(n_nodes + vs_count - 1, first_node) - element.Value/device.Value;
+        end
+        if (second_node ~= 0)
+          G_mat(n_nodes + vs_count - 1, second_node) = G_mat(n_nodes + vs_count - 1, second_node) + element.Value/device.Value;
+        end
+        
+      otherwise
+    end
+  end
+  if element.Type==Device.VoltageSource || element.Type==Device.VCVS || element.Type == Device.CCVS
+    if (n1~=0)
+      G_mat(n_nodes + vs_count - 1, n1) = G_mat(n_nodes + vs_count - 1, n1) + 1;
+      G_mat(n1, n_nodes + vs_count - 1) = G_mat(n1, n_nodes + vs_count - 1) + 1;
+    end
+    if (n2 ~=0)
+      G_mat(n_nodes + vs_count - 1, n2) = G_mat(n_nodes + vs_count - 1, n2) - 1;
+      G_mat(n2, n_nodes + vs_count - 1) = G_mat(n2, n_nodes + vs_count - 1) - 1;
+    end
+    voltage_sources(end+1) = element;
     vs_count = vs_count + 1;
   end
 end
