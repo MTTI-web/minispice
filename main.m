@@ -194,10 +194,10 @@ for el = keys(elements)
           G_mat(n2, device.Nodes{2}) = G_mat(n2, device.Nodes{2}) + t;
         end
         if n1 ~= 0 && device.Nodes{2} ~= 0
-          G_mat(n1, device.Nodes{2}) = G_mat(n1, device.Nodes{2}) + t;
+          G_mat(n1, device.Nodes{2}) = G_mat(n1, device.Nodes{2}) - t;
         end
         if n2 ~= 0 && device.Nodes{1} ~= 0
-          G_mat(n2, device.Nodes{1}) = G_mat(n2, device.Nodes{1}) + t;
+          G_mat(n2, device.Nodes{1}) = G_mat(n2, device.Nodes{1}) - t;
         end
       otherwise
     end
