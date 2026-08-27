@@ -1,0 +1,130 @@
+* Example circuit with independent and controlled sources
+
+* ==========================================
+* Independent voltage sources
+* ==========================================
+
+V1  1 0 DC 10
+V2  2 0 DC 5
+V3  3 0 SIN(0 2 1k)
+
+* ==========================================
+* Independent current sources
+* ==========================================
+
+I1  4 0 DC 2m
+I2  5 0 DC 1m
+I3  6 0 AC 1
+
+* ==========================================
+* Resistors
+* ==========================================
+
+R1   1 2  1k
+R2   2 3  2.2k
+R3   3 4  3.3k
+R4   4 5  4.7k
+R5   5 6  5.6k
+R6   6 7  6.8k
+R7   7 8  8.2k
+R8   8 9  10k
+R9   9 10 12k
+R10  10 0 15k
+
+R11  1 4  1.5k
+R12  2 5  2.7k
+R13  3 6  3.9k
+R14  4 7  5.1k
+R15  5 8  6.2k
+R16  6 9  7.5k
+R17  7 10 9.1k
+
+R18  1 0  20k
+R19  2 0  22k
+R20  3 0  24k
+R21  4 0  27k
+R22  5 0  30k
+R23  6 0  33k
+R24  7 0  36k
+R25  8 0  39k
+R26  9 0  43k
+
+* ==========================================
+* VCVS - Voltage Controlled Voltage Source
+* Ename N+ N- NC+ NC- Gain
+* ==========================================
+
+E1  11 0  1 2  2.0
+E2  12 0  3 4  5.0
+E3  13 0  5 6  1.5
+
+R27 11 12 1k
+R28 12 13 2k
+R29 13 0  5k
+
+* ==========================================
+* VCCS - Voltage Controlled Current Source
+* Gname N+ N- NC+ NC- Transconductance
+* ==========================================
+
+G1  14 0  1 2  1m
+G2  15 0  3 4  2m
+G3  16 0  5 6  0.5m
+
+R30 14 0  10k
+R31 15 0  8.2k
+R32 16 0  12k
+
+* ==========================================
+* CCVS - Current Controlled Voltage Source
+* Hname N+ N- Vcontrol Transresistance
+*
+* The controlling current flows through VCTRL1
+* ==========================================
+
+VCTRL1 17 0 DC 0
+R33    17 1  1k
+
+H1  18 0 VCTRL1 1000
+H2  19 0 VCTRL1 2000
+
+R34 18 0  10k
+R35 19 0  10k
+
+* ==========================================
+* CCCS - Current Controlled Current Source
+* Fname N+ N- Vcontrol Gain
+*
+* Controlled by current through VCTRL2
+* ==========================================
+
+VCTRL2 20 0 DC 0
+R36    20 2  2k
+
+F1  21 0 VCTRL2 2.0
+F2  22 0 VCTRL2 0.5
+
+R37 21 0  5k
+R38 22 0  8k
+
+* ==========================================
+* Additional interconnected resistors
+* ==========================================
+
+R39  11 14 2k
+R40  12 15 3k
+R41  13 16 4k
+R42  14 18 5k
+R43  15 19 6k
+R44  16 21 7k
+R45  18 22 8k
+R46  19 21 9k
+R47  21 22 10k
+
+* Analysis commands
+
+.OP
+.DC V1 0 10 1
+.AC DEC 10 10 1MEG
+
+.END
