@@ -161,6 +161,7 @@ for el = keys(elements)
       otherwise
     end
   end
+ 
   if element.Type==Device.VCCS
       first_node = nodes(element.DependsOn{1}).Id;
       second_node = nodes(element.DependsOn{2}).Id;
@@ -178,7 +179,6 @@ for el = keys(elements)
         G_mat(n2, second_node) = G_mat(n2, second_node) + element.Value;
       end
   end
-
   if element.Type == Device.CCCS
     device = elements(element.DependsOn);
     t = element.Value / device.Value;
@@ -207,6 +207,13 @@ for el = keys(elements)
         end
         if n2 ~= 0
           G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
+        end
+      case Device.CurrentSource
+        if n1~=0
+          I_mat(n1,1) = I_mat(n1,1)-element.Value*device.Value;
+        end
+        if n2~=0
+          I_mat(n2,1) = I_mat(n2,1)+element.Value*device.Value;
         end
       case Device.CCVS
         if n1 ~= 0
