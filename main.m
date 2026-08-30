@@ -150,40 +150,58 @@ for el = keys(elements)
         end
       case Device.CurrentSource
         I_mat(n_nodes + element.VS_ID - 1, 1) = I_mat(n_nodes + element.VS_ID - 1, 1) + element.Value*device.Value;
+
       case Device.VoltageSource
         G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
+
       case Device.CCVS
         G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
+
       case Device.VCVS
         G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
+
       case Device.VCCS %TODO
+        first_node = nodes(device.DependsOn{1}).Id;
+        second_node = nodes(device.DependsOn{2}).Id;
+        if (first_node ~= 0)
+          G_mat(n_nodes + device.VS_ID - 1, first_node) = G_mat(n_nodes + device.VS_ID - 1, first_node) - device.Value * element.Value;
+        end
+        if (second_node ~= 0)
+          G_mat(n_nodes + device.VS_ID - 1, second_node) = G_mat(n_nodes + device.VS_ID - 1, second_node) + device.Value * element.Value;
+        end
+
       case Device.CCCS %TODO
       otherwise
     end
   end
- 
+
+
   if element.Type==Device.VCCS
-      first_node = nodes(element.DependsOn{1}).Id;
-      second_node = nodes(element.DependsOn{2}).Id;
-      % Current flows from n1 to n2, controlled by voltage (first_node - second_node)
-      if (n1 ~= 0 && first_node ~= 0)
-        G_mat(n1, first_node) = G_mat(n1, first_node) + element.Value;
-      end
-      if (n1 ~= 0 && second_node ~= 0)
-        G_mat(n1, second_node) = G_mat(n1, second_node) - element.Value;
-      end
-      if (n2 ~= 0 && first_node ~= 0)
-        G_mat(n2, first_node) = G_mat(n2, first_node) - element.Value;
-      end
-      if (n2 ~= 0 && second_node ~= 0)
-        G_mat(n2, second_node) = G_mat(n2, second_node) + element.Value;
-      end
+    first_node = nodes(element.DependsOn{1}).Id;
+    second_node = nodes(element.DependsOn{2}).Id;
+    % Current flows from n1 to n2, controlled by voltage (first_node - second_node)
+    if (n1 ~= 0 && first_node ~= 0)
+      G_mat(n1, first_node) = G_mat(n1, first_node) + element.Value;
+    end
+    if (n1 ~= 0 && second_node ~= 0)
+      G_mat(n1, second_node) = G_mat(n1, second_node) - element.Value;
+    end
+    if (n2 ~= 0 && first_node ~= 0)
+      G_mat(n2, first_node) = G_mat(n2, first_node) - element.Value;
+    end
+    if (n2 ~= 0 && second_node ~= 0)
+      G_mat(n2, second_node) = G_mat(n2, second_node) + element.Value;
+    end
   end
+
+
+
   if element.Type == Device.CCCS
     device = elements(element.DependsOn);
     t = element.Value / device.Value;
     disp(device);
     switch device.Type
+
       case Device.Resistor
         if n1 ~= 0 && nodes(device.Nodes{1}).Id ~= 0
           disp(1);
@@ -201,6 +219,7 @@ for el = keys(elements)
           disp(4);
           G_mat(n2, nodes(device.Nodes{1}).Id) = G_mat(n2, nodes(device.Nodes{1}).Id) - t;
         end
+
       case Device.VoltageSource
         if n1 ~= 0
           G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
@@ -208,6 +227,7 @@ for el = keys(elements)
         if n2 ~= 0
           G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
         end
+
       case Device.CurrentSource
         if n1~=0
           I_mat(n1,1) = I_mat(n1,1)-element.Value*device.Value;
@@ -215,6 +235,7 @@ for el = keys(elements)
         if n2~=0
           I_mat(n2,1) = I_mat(n2,1)+element.Value*device.Value;
         end
+
       case Device.CCVS
         if n1 ~= 0
           G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
@@ -222,6 +243,7 @@ for el = keys(elements)
         if n2 ~= 0
           G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
         end
+
       case Device.VCVS
         if n1 ~= 0
           G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
@@ -229,8 +251,24 @@ for el = keys(elements)
         if n2 ~= 0
           G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
         end
+
       case Device.CCCS % TODO
-      case Device.VCCS % TODO 
+
+      case Device.VCCS % TODO
+        first_node = nodes(device.DependsOn{1}).Id;
+        second_node = nodes(device.DependsOn{2}).Id;
+        if (n1 ~= 0 && first_node ~= 0)
+          G_mat(n1, first_node) = G_mat(n1, first_node) + element.Value * device.Value;
+        end
+        if (n1 ~= 0 && second_node ~= 0)
+          G_mat(n1, second_node) = G_mat(n1, second_node) - element.Value * device.Value;
+        end
+        if (n2 ~= 0 && first_node ~= 0)
+          G_mat(n2, first_node) = G_mat(n2, first_node) - element.Value * device.Value;
+        end
+        if (n2 ~= 0 && second_node ~= 0)
+          G_mat(n2, second_node) = G_mat(n2, second_node) + element.Value * device.Value;
+        end
       otherwise
     end
   end
