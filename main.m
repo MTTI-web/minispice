@@ -179,7 +179,6 @@ for el = keys(elements)
   if element.Type==Device.VCCS
     first_node = nodes(element.DependsOn{1}).Id;
     second_node = nodes(element.DependsOn{2}).Id;
-    % Current flows from n1 to n2, controlled by voltage (first_node - second_node)
     if (n1 ~= 0 && first_node ~= 0)
       G_mat(n1, first_node) = G_mat(n1, first_node) + element.Value;
     end
