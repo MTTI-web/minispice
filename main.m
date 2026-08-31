@@ -1,31 +1,31 @@
 
 function print_map(nodes)
-keysList = keys(nodes);
+  keysList = keys(nodes);
 
-for i = 1:numel(keysList)
-  key = keysList{i};
-  value = nodes(key);
+  for i = 1:numel(keysList)
+    key = keysList{i};
+    value = nodes(key);
 
-  fprintf("Key: %s\n", key);
-  disp(value);
-end
+    fprintf("Key: %s\n", key);
+    disp(value);
+  end
 end
 
 function nodes = addNode(words, nodes)
-n1 = string(words{2});
-n2 = string(words{3});
+  n1 = string(words{2});
+  n2 = string(words{3});
 
-if ~isKey(nodes,n1)
-  nodes(n1) = Node(n1);
-end
+  if ~isKey(nodes,n1)
+    nodes(n1) = Node(n1);
+  end
 
-if ~isKey(nodes,n2)
-  nodes(n2) = Node(n2);
-end
-name = string(words{1});
-if name(1)=="O" && ~isKey(nodes,words{4})
-  nodes(words{4}) = Node(words{4});
-end
+  if ~isKey(nodes,n2)
+    nodes(n2) = Node(n2);
+  end
+  name = string(words{1});
+  if name(1)=="O" && ~isKey(nodes,string(words{4}))
+    nodes(string(words{4})) = Node(string(words{4}));
+  end
 end
 
 % parse netlist
@@ -53,7 +53,7 @@ end
 
 
 n_vs = 0; % number of voltage sources.
-
+n_opamp = 0; % number of opamps
 % add elements
 for i = 1:numel(netlist_lines)
   words = strsplit(netlist_lines{i});
@@ -67,7 +67,7 @@ for i = 1:numel(netlist_lines)
   elements(words{1}) = element;
 
   for nod = element.Nodes
-    nodes(nod).add(element);
+    nodes(string(nod)).addElement(element);
   end
   if element.Type == Device.VoltageSource || element.Type == Device.VCVS ||element.Type == Device.CCVS
     n_vs = n_vs + 1;
@@ -135,6 +135,7 @@ I_mat = zeros(n_nodes + n_vs + n_opamp - 1, 1);
 
 % real loop
 voltage_sources = Element.empty(0,1);
+opamps = Element.empty(0,1);
 for el = keys(elements)
   element = elements(el{1});
   n1 = nodes(element.Nodes{1}).Id;
@@ -310,6 +311,7 @@ for el = keys(elements)
     G_mat(n_nodes + n_vs + element.VS_ID - 1, n1) = G_mat(n_nodes + n_vs + element.VS_ID - 1, n1) + 1;
     G_mat(n_nodes + n_vs + element.VS_ID - 1, n2) = G_mat(n_nodes + n_vs + element.VS_ID - 1, n2) - 1;
     G_mat(n3, n_nodes + n_vs + element.VS_ID - 1) = G_mat(n3, n_nodes + n_vs + element.VS_ID - 1) - 1;
+    opamps(end+1) = element;
   end
 end
 
@@ -332,4 +334,8 @@ for v = 1:length(voltage_sources)
   fprintf("Current in %s from %s to %s is %f\n",vs.Name,vs.Nodes{1},vs.Nodes{2},V(n_nodes+vs.VS_ID-1));
 end
 
+for o = 1:length(opamps)
+  op = opamps(o);
+  fprintf("current flowing out of opamp %s is %f\n",op.Name,V(n_nodes+n_vs+op.VS_ID-1));
+end
 % print_map(elements);

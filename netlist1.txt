@@ -1,7 +1,7 @@
-V1 1 0 DC 10
-R1 1 2 2
-R2 2 0 4
-I1 2 3 DC 3
-R3 3 0 6
-V2 3 4 DC 5
+V1 in 0 DC 1
+R1 in n2 10k
+R2 out n2 100k
+O1 0 n2 out
+
+.op
 .end
