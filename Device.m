@@ -12,6 +12,6 @@ classdef Device
         VCCS  % Voltage-Controlled Current Source
         CCVS  % Current-Controlled Voltage Source
 
-        Op_Amp
+        OpAmp
     end
 end

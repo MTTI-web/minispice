@@ -50,6 +50,8 @@ classdef Element < handle
           obj.Type = Device.CCVS;
           obj.DependsOn = words{4};
           obj.Value = valParse(words{5});
+        case "O"
+          obj.Type = Device.OpAmp;
         otherwise
           error("Unknown device type: %s", obj.Name);
 
