@@ -69,7 +69,35 @@ for i = 1:numel(netlist_lines)
     element.VS_ID = n_vs;
   end
 end
-
+for i=1:length(elements)
+  for el = elements
+    element = elements(el);
+    switch element.Type
+      case Device.CCCS
+        switch elements(element.DependsOn).Type
+          case Device.VCCS
+            element.Type = Device.VCCS;
+            element.DependsOn = elements(element.DependsOn).DependsOn;
+            element.Value = elements(element.DependsOn).Value*element.Value;
+          case Device.CCCS
+            element.DependsOn = elements(element.DependsOn).DependsOn;
+            element.Value = elements(element.DependsOn).Value*element.Value;
+        end
+      case Device.CCVS
+        switch elements(element.DependsOn).Type
+          case Device.VCCS
+            element.Type = Device.VCVS;
+            element.DependsOn = elements(element.DependsOn).DependsOn;
+            element.Value = elements(element.DependsOn).Value*element.Value;
+          case Device.CCCS
+            element.Type= Device.CCVS;
+            element.DependsOn = elements(element.DependsOn).DependsOn;
+            element.Value = elements(element.DependsOn).Value*element.Value;
+        end
+      otherwise        
+    end
+  end
+end
 
 % handling no ground
 refNode = "0";
@@ -160,17 +188,10 @@ for el = keys(elements)
       case Device.VCVS
         G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) = G_mat(element.VS_ID+n_nodes-1,device.VS_ID + n_nodes -1) - element.Value;
 
-      case Device.VCCS %TODO
-        first_node = nodes(device.DependsOn{1}).Id;
-        second_node = nodes(device.DependsOn{2}).Id;
-        if (first_node ~= 0)
-          G_mat(n_nodes + device.VS_ID - 1, first_node) = G_mat(n_nodes + device.VS_ID - 1, first_node) - device.Value * element.Value;
-        end
-        if (second_node ~= 0)
-          G_mat(n_nodes + device.VS_ID - 1, second_node) = G_mat(n_nodes + device.VS_ID - 1, second_node) + device.Value * element.Value;
-        end
-
-      case Device.CCCS %TODO
+      case Device.VCCS
+        % BOOOOMM
+      case Device.CCCS
+        %BOOOOOOMMMM
       otherwise
     end
   end
@@ -251,23 +272,10 @@ for el = keys(elements)
           G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) - element.Value;
         end
 
-      case Device.CCCS % TODO
-
-      case Device.VCCS % TODO
-        first_node = nodes(device.DependsOn{1}).Id;
-        second_node = nodes(device.DependsOn{2}).Id;
-        if (n1 ~= 0 && first_node ~= 0)
-          G_mat(n1, first_node) = G_mat(n1, first_node) + element.Value * device.Value;
-        end
-        if (n1 ~= 0 && second_node ~= 0)
-          G_mat(n1, second_node) = G_mat(n1, second_node) - element.Value * device.Value;
-        end
-        if (n2 ~= 0 && first_node ~= 0)
-          G_mat(n2, first_node) = G_mat(n2, first_node) - element.Value * device.Value;
-        end
-        if (n2 ~= 0 && second_node ~= 0)
-          G_mat(n2, second_node) = G_mat(n2, second_node) + element.Value * device.Value;
-        end
+      case Device.CCCS
+          % BOOOOMMMMMM
+      case Device.VCCS 
+        % BOOOOMMM
       otherwise
     end
   end
