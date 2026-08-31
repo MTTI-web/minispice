@@ -25,12 +25,12 @@ end
 end
 
 % parse netlist
-filename = 'input_netlist.txt';
+filename = 'netlist1.txt';
 
-raw_netlist = strsplit(fileread(filename), {'\r\n', '\n', '\r'});
+raw_netlist = splitlines(fileread(filename));
 lines = strtrim(raw_netlist(:));
 
-lines = regexprep(lines, '[;#$%].*$', '');
+lines = regexprep(lines, '[;#%$].*$', '');
 lines = strtrim(lines);
 commentLine = startsWith(lines, {'*', '#', ';', '%'});
 netlist_lines = lines(~cellfun(@isempty, lines) & ~commentLine);
@@ -221,10 +221,10 @@ for el = keys(elements)
 
       case Device.VoltageSource
         if n1 ~= 0
-          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
+          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) + element.Value;
         end
         if n2 ~= 0
-          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
+          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) -element.Value;
         end
 
       case Device.CurrentSource
@@ -237,18 +237,18 @@ for el = keys(elements)
 
       case Device.CCVS
         if n1 ~= 0
-          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
+          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) + element.Value;
         end
         if n2 ~= 0
-          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
+          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) - element.Value;
         end
 
       case Device.VCVS
         if n1 ~= 0
-          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) - element.Value;
+          G_mat(n1, device.VS_ID + n_nodes - 1) = G_mat(n1, device.VS_ID + n_nodes - 1) + element.Value;
         end
         if n2 ~= 0
-          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) + element.Value;
+          G_mat(n2, device.VS_ID + n_nodes - 1) = G_mat(n2, device.VS_ID + n_nodes - 1) - element.Value;
         end
 
       case Device.CCCS % TODO
@@ -301,7 +301,7 @@ end
 
 for v = 1:length(voltage_sources)
   vs = voltage_sources(v);
-  fprintf("Current in %s from %s to %s is %f\n",vs.Name,vs.Nodes{1},vs.Nodes{2},V(n_nodes+v-1));
+  fprintf("Current in %s from %s to %s is %f\n",vs.Name,vs.Nodes{1},vs.Nodes{2},V(n_nodes+vs.VS_ID-1));
 end
 
 % print_map(elements);

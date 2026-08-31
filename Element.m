@@ -5,7 +5,7 @@ classdef Element < handle
     Type Device
     Value double
     VS_ID
-    Nodes 
+    Nodes
     DependsOn
   end
 
@@ -21,10 +21,10 @@ classdef Element < handle
       switch upper(name(1))
         case "V"
           obj.Type = Device.VoltageSource;
-          obj.Value = valParse(words{5});
+          obj.Value = valParse(words{end});
         case "I"
           obj.Type = Device.CurrentSource;
-          obj.Value = valParse(words{5});
+          obj.Value = valParse(words{end});
         case "R"
           obj.Type = Device.Resistor;
           obj.Value = valParse(words{4});
