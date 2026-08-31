@@ -1,4 +1,7 @@
-# MINISpice
+# MINISpice by Tanmay Bothra (25116100) & Srijan Kumar (25117138)
+
+> Visit the public repository: https://github.com/MTTI-web/minispice
+We highly recommend viewing this repo to go through the timeline of building this project through commits.
 
 The app is the solution to all your problems if you're a second year B. Tech. student, taking Sarvana Sir's course called Network Theory. Hopefully he lets us use this in the exam :)
 
