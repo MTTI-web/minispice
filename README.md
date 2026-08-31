@@ -1,6 +1,6 @@
 # MINISpice
 
-The app is the solution to all your problems if you're a B. Tech. student second year, taking Sarvana Sir's course called network theory.
+The app is the solution to all your problems if you're a second year B. Tech. student, taking Sarvana Sir's course called Network Theory. Hopefully he lets us use this in the exam :)
 
 We have used the technique of nodal analysis to generalize the whole circuit into a MNA Matrix that is iteratively updated to accomodate all of elements.
 
