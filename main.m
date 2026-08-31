@@ -79,8 +79,9 @@ for i = 1:numel(netlist_lines)
 end
 
 for i=1:length(elements)
-  for el = elements
-    element = elements(el);
+  
+  for el = keys(elements)
+    element = elements(el{1});
     switch element.Type
       case Device.CCCS
         switch elements(element.DependsOn).Type
@@ -308,9 +309,15 @@ for el = keys(elements)
 
   if element.Type == Device.OpAmp
     n3 = nodes(element.Nodes{3}).Id;
-    G_mat(n_nodes + n_vs + element.VS_ID - 1, n1) = G_mat(n_nodes + n_vs + element.VS_ID - 1, n1) + 1;
-    G_mat(n_nodes + n_vs + element.VS_ID - 1, n2) = G_mat(n_nodes + n_vs + element.VS_ID - 1, n2) - 1;
-    G_mat(n3, n_nodes + n_vs + element.VS_ID - 1) = G_mat(n3, n_nodes + n_vs + element.VS_ID - 1) - 1;
+    if n1~=0
+      G_mat(n_nodes + n_vs + element.VS_ID - 1, n1) = G_mat(n_nodes + n_vs + element.VS_ID - 1, n1) + 1;
+    end
+    if n2~=0
+      G_mat(n_nodes + n_vs + element.VS_ID - 1, n2) = G_mat(n_nodes + n_vs + element.VS_ID - 1, n2) - 1;
+    end
+    if n3~=0
+      G_mat(n3, n_nodes + n_vs + element.VS_ID - 1) = G_mat(n3, n_nodes + n_vs + element.VS_ID - 1) - 1;
+    end
     opamps(end+1) = element;
   end
 end
