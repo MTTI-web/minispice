@@ -12,20 +12,20 @@ end
 end
 
 function nodes = addNode(words, nodes)
-  n1 = string(words{2});
-  n2 = string(words{3});
+n1 = string(words{2});
+n2 = string(words{3});
 
-  if ~isKey(nodes,n1)
-    nodes(n1) = Node(n1);
-  end
+if ~isKey(nodes,n1)
+  nodes(n1) = Node(n1);
+end
 
-  if ~isKey(nodes,n2)
-    nodes(n2) = Node(n2);
-  end
-  name = string(words{1});
-  if name(1)=="O" && ~isKey(nodes,words{4})
-    nodes(words{4}) = Node(words{4});
-  end  
+if ~isKey(nodes,n2)
+  nodes(n2) = Node(n2);
+end
+name = string(words{1});
+if name(1)=="O" && ~isKey(nodes,words{4})
+  nodes(words{4}) = Node(words{4});
+end
 end
 
 % parse netlist
@@ -69,12 +69,12 @@ for i = 1:numel(netlist_lines)
   for nod = element.Nodes
     nodes(nod).add(element);
   end
-   if element.Type == Device.VoltageSource || element.Type == Device.VCVS ||element.Type == Device.CCVS
+  if element.Type == Device.VoltageSource || element.Type == Device.VCVS ||element.Type == Device.CCVS
     n_vs = n_vs + 1;
     element.VS_ID = n_vs;
   elseif element.Type == Device.OpAmp
-    op_amp_count = op_amp_count+1;
-    element.VS_ID = op_amp_count;
+    n_opamp = n_opamp+1;
+    element.VS_ID = n_opamp;
   end
 end
 
@@ -103,7 +103,7 @@ for i=1:length(elements)
             element.DependsOn = elements(element.DependsOn).DependsOn;
             element.Value = elements(element.DependsOn).Value*element.Value;
         end
-      otherwise        
+      otherwise
     end
   end
 end
@@ -130,8 +130,8 @@ clear i;
 n_nodes = length(keys(nodes));
 
 % initializing known matrices
-G_mat = zeros(n_nodes + n_vs - 1, n_nodes + n_vs -1);
-I_mat = zeros(n_nodes + n_vs - 1, 1);
+G_mat = zeros(n_nodes + n_vs + n_opamp - 1, n_nodes + n_vs + n_opamp -1);
+I_mat = zeros(n_nodes + n_vs + n_opamp - 1, 1);
 
 % real loop
 voltage_sources = Element.empty(0,1);
@@ -284,9 +284,9 @@ for el = keys(elements)
         end
 
       case Device.CCCS
-          % BOOOOMMMMMM
-          disp("dhamaka!!!! at least get a circuit without circular dependency bro")
-      case Device.VCCS 
+        % BOOOOMMMMMM
+        disp("dhamaka!!!! at least get a circuit without circular dependency bro")
+      case Device.VCCS
         % BOOOOMMM
         disp("dhamaka!!!! at least get a circuit without circular dependency bro")
       otherwise
@@ -303,6 +303,13 @@ for el = keys(elements)
       G_mat(n2, n_nodes + element.VS_ID - 1) = G_mat(n2, n_nodes + element.VS_ID - 1) - 1;
     end
     voltage_sources(end+1) = element;
+  end
+
+  if element.Type == Device.OpAmp
+    n3 = nodes(element.Nodes{3}).Id;
+    G_mat(n_nodes + n_vs + element.VS_ID - 1, n1) = G_mat(n_nodes + n_vs + element.VS_ID - 1, n1) + 1;
+    G_mat(n_nodes + n_vs + element.VS_ID - 1, n2) = G_mat(n_nodes + n_vs + element.VS_ID - 1, n2) - 1;
+    G_mat(n3, n_nodes + n_vs + element.VS_ID - 1) = G_mat(n3, n_nodes + n_vs + element.VS_ID - 1) - 1;
   end
 end
 
