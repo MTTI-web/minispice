@@ -69,9 +69,12 @@ for i = 1:numel(netlist_lines)
   for nod = element.Nodes
     nodes(nod).add(element);
   end
-  if element.Type == Device.VoltageSource || element.Type == Device.VCVS ||element.Type == Device.CCVS
+   if element.Type == Device.VoltageSource || element.Type == Device.VCVS ||element.Type == Device.CCVS
     n_vs = n_vs + 1;
     element.VS_ID = n_vs;
+  elseif element.Type == Device.OpAmp
+    op_amp_count = op_amp_count+1;
+    element.VS_ID = op_amp_count;
   end
 end
 
