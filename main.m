@@ -12,16 +12,20 @@ end
 end
 
 function nodes = addNode(words, nodes)
-n1 = string(words{2});
-n2 = string(words{3});
+  n1 = string(words{2});
+  n2 = string(words{3});
 
-if ~isKey(nodes,n1)
-  nodes(n1) = Node(n1);
-end
+  if ~isKey(nodes,n1)
+    nodes(n1) = Node(n1);
+  end
 
-if ~isKey(nodes,n2)
-  nodes(n2) = Node(n2);
-end
+  if ~isKey(nodes,n2)
+    nodes(n2) = Node(n2);
+  end
+  name = string(words{1});
+  if name(1)=="O" && ~isKey(nodes,words{4})
+    nodes(words{4}) = Node(words{4});
+  end  
 end
 
 % parse netlist
@@ -62,13 +66,15 @@ for i = 1:numel(netlist_lines)
 
   elements(words{1}) = element;
 
-  nodes(words{2}).addElement(element);
-  nodes(words{3}).addElement(element);
+  for nod = element.Nodes
+    nodes(nod).add(element);
+  end
   if element.Type == Device.VoltageSource || element.Type == Device.VCVS ||element.Type == Device.CCVS
     n_vs = n_vs + 1;
     element.VS_ID = n_vs;
   end
 end
+
 for i=1:length(elements)
   for el = elements
     element = elements(el);
@@ -190,8 +196,10 @@ for el = keys(elements)
 
       case Device.VCCS
         % BOOOOMM
+        disp("dhamaka!!!! at least get a circuit without circular dependency bro")
       case Device.CCCS
         %BOOOOOOMMMM
+        disp("bekaar circuit hai, circular dependency smh")
       otherwise
     end
   end
@@ -274,8 +282,10 @@ for el = keys(elements)
 
       case Device.CCCS
           % BOOOOMMMMMM
+          disp("dhamaka!!!! at least get a circuit without circular dependency bro")
       case Device.VCCS 
         % BOOOOMMM
+        disp("dhamaka!!!! at least get a circuit without circular dependency bro")
       otherwise
     end
   end

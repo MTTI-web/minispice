@@ -52,6 +52,7 @@ classdef Element < handle
           obj.Value = valParse(words{5});
         case "O"
           obj.Type = Device.OpAmp;
+          obj.Nodes = {node1, node2,words{4}};
         otherwise
           error("Unknown device type: %s", obj.Name);
 
